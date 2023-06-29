@@ -103,14 +103,14 @@ jobs:
         body: |
           The Terraform plan has been generated and requires manual approval before applying the changes.
 
-  - name: Check approval status
+    - name: Check approval status
       run: |
         echo "Approval status: ${{ steps.approval.outputs.approved }}"
         if [[ "${{ steps.approval.outputs.approved }}" != "true" ]]; then
           echo "Terraform apply is not approved. Exiting workflow."
           exit 1
         fi
-        
+
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
