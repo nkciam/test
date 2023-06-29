@@ -96,7 +96,7 @@ jobs:
       id: approval
       uses: peter-evans/create-pull-request@v3
       with:
-        # token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GH_TOKEN }}
         commit-message: Requesting manual approval for Terraform apply
         branch: manual-approval
         title: Manual approval for Terraform apply
