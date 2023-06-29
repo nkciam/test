@@ -75,8 +75,7 @@ jobs:
     # - name: Deploy Terraform
     #   if: steps.approval.outputs.approved == 'true'
     #   run: terraform apply --var-file cluster.tfvars 
-  
-  
+
   Terraform_Apply:
     name: 'Terraform Apply'
     needs: [Terraform_Plan]
@@ -93,6 +92,25 @@ jobs:
         shell: bash
 
     steps:
+    - name: Manual approval
+      id: approval
+      uses: peter-evans/create-pull-request@v3
+      with:
+        # token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: Requesting manual approval for Terraform apply
+        branch: manual-approval
+        title: Manual approval for Terraform apply
+        body: |
+          The Terraform plan has been generated and requires manual approval before applying the changes.
+
+  - name: Check approval status
+      run: |
+        echo "Approval status: ${{ steps.approval.outputs.approved }}"
+        if [[ "${{ steps.approval.outputs.approved }}" != "true" ]]; then
+          echo "Terraform apply is not approved. Exiting workflow."
+          exit 1
+        fi
+        
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -100,6 +118,4 @@ jobs:
     - name: terraform Apply
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: terraform apply 
-      # run: terraform apply --var-file cluster.tfvars -auto-approve
-      working-directory: ${{ env.ROOT_PATH }}
     
