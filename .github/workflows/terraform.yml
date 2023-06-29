@@ -9,8 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
-    name: 'Terraform'
+  Terraform_Plan:
+    name: 'Terraform_Plan'
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -58,3 +58,34 @@ jobs:
     - name: Deploy Terraform
       if: steps.approval.outputs.approved == 'true'
       run: terraform apply --var-file cluster.tfvars 
+  
+  
+  Terraform_Apply:
+    name: 'terraform_Apply'
+    needs: [Terraform_Plan]
+    runs-on: self-hosted
+    environment: production
+    
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # - name: Checkout
+    #   uses: actions/checkout@v2
+
+    # - name: Setup terraform
+    #   uses: hashicorp/setup-terraform@v1
+    #   with:
+    #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+ 
+    # - name: terraform Init
+    #   run: terraform init
+    #   working-directory: ${{ env.ROOT_PATH }}
+
+    - name: terraform Apply
+      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      run: terraform apply --var-file cluster.tfvars 
+      # run: terraform apply --var-file cluster.tfvars -auto-approve
+      working-directory: ${{ env.ROOT_PATH }}
+    
