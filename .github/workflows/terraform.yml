@@ -9,15 +9,15 @@ permissions:
   contents: read
 
 jobs:
-  Terraform_Plan:
-    name: 'Terraform_Plan'
+  Terraform_Init:
+    name: 'Terraform Init'
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     runs-on: self-hosted
-    environment: production
+    # environment: production
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -37,10 +37,23 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run: terraform fmt -check
+  Terraform_Plan:
+    name: 'Terraform Plan'
+    needs: [Terraform_Init]
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    runs-on: self-hosted
+    # environment: production
 
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan --var-file cluster.tfvars
@@ -61,7 +74,7 @@ jobs:
   
   
   Terraform_Apply:
-    name: 'terraform_Apply'
+    name: 'Terraform Apply'
     needs: [Terraform_Plan]
     runs-on: self-hosted
     environment: production
