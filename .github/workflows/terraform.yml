@@ -57,4 +57,4 @@ jobs:
 
     - name: Deploy Terraform
       if: steps.approval.outputs.approved == 'true'
-      run: terraform apply --var-file cluster.tfvars -auto-approve
+      run: terraform apply --var-file cluster.tfvars 
